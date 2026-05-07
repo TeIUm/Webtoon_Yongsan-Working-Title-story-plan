@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>플롯 구상도</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1814;
+    --ink-mid: #4a4540;
+    --ink-light: #8a8480;
+    --ink-faint: #c8c4be;
+    --paper: #f7f4ef;
+    --paper-warm: #edeae3;
+    --paper-dark: #e0dbd2;
+    --accent: #b5341c;
+    --border: #d4cfc8;
+    --radius: 4px;
+    --font-serif: 'Nanum Myeongjo', serif;
+    --font-sans: 'Noto Sans KR', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  .app-header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 52px;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .app-title { font-family: var(--font-serif); font-size: 17px; letter-spacing: 0.08em; }
+  .header-actions { display: flex; gap: 8px; }
+  .hbtn {
+    font-family: var(--font-sans); font-size: 12px;
+    border: 0.5px solid rgba(255,255,255,0.3);
+    background: transparent; color: var(--paper);
+    padding: 5px 14px; border-radius: var(--radius);
+    cursor: pointer; transition: background 0.15s;
+  }
+  .hbtn:hover { background: rgba(255,255,255,0.12); }
+  .hbtn.primary { background: var(--accent); border-color: var(--accent); }
+  .hbtn.primary:hover { background: #9e2a15; }
+
+  .main { max-width: 960px; margin: 0 auto; padding: 2rem; }
+
+  /* ── Meta bar ── */
+  .meta-bar {
+    display: grid; grid-template-columns: 2fr 1fr 1fr;
+    background: #fff; border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden;
+    margin-bottom: 2rem;
+  }
+  .meta-field {
+    display: flex; flex-direction: column;
+    padding: 12px 16px;
+    border-right: 0.5px solid var(--border);
+  }
+  .meta-field:last-child { border-right: none; }
+  .meta-label {
+    font-size: 10px; font-weight: 500; color: var(--ink-light);
+    text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px;
+  }
+  .meta-in {
+    font-size: 14px; border: none; background: transparent;
+    outline: none; color: var(--ink); font-family: var(--font-sans); width: 100%;
+  }
+  .meta-in::placeholder { color: var(--ink-faint); }
+
+  /* ── Floating popup toolbar ── */
+  #float-toolbar {
+    position: absolute;
+    display: none;
+    align-items: center; gap: 2px;
+    background: var(--ink);
+    border-radius: 6px;
+    padding: 5px 7px;
+    z-index: 200;
+    box-shadow: 0 4px 16px rgba(26,24,20,0.22);
+    white-space: nowrap;
+  }
+  #float-toolbar.visible { display: flex; }
+  #float-toolbar::after {
+    content: '';
+    position: absolute;
+    bottom: -5px; left: 50%; transform: translateX(-50%);
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid var(--ink);
+  }
+  .toolbar-btn {
+    font-size: 13px; font-weight: 500;
+    width: 28px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    border: 0.5px solid transparent; border-radius: var(--radius);
+    background: transparent; cursor: pointer; color: rgba(255,255,255,0.75);
+    font-family: var(--font-sans); transition: all 0.1s;
+    line-height: 1;
+  }
+  .toolbar-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
+  .toolbar-sep { width: 0.5px; height: 16px; background: rgba(255,255,255,0.2); margin: 0 3px; }
+  .hl-dot { width: 10px; height: 10px; border-radius: 2px; display: block; }
+  .hl-yellow { background: #ffe066; }
+  .hl-green  { background: #b2f0c8; }
+  .hl-pink   { background: #ffc2d4; }
+  .hl-blue   { background: #b8d8ff; }
+
+  /* ── Event cards ── */
+  .ev-list { display: flex; flex-direction: column; gap: 12px; }
+
+  .ev-card {
+    background: #fff; border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden;
+  }
+
+  .ev-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    background: var(--paper-warm);
+    border-bottom: 0.5px solid var(--border);
+  }
+  .ev-num {
+    font-family: var(--font-serif); font-size: 13px; color: var(--ink-faint);
+    min-width: 32px;
+  }
+  .ev-title-in {
+    flex: 1; font-size: 14px; font-weight: 500;
+    border: none; background: transparent; outline: none;
+    color: var(--ink); font-family: var(--font-sans);
+  }
+  .ev-title-in::placeholder { color: var(--ink-faint); }
+  .ev-del {
+    font-size: 12px; color: var(--ink-faint);
+    background: transparent; border: none; cursor: pointer; padding: 2px 6px;
+    border-radius: var(--radius);
+  }
+  .ev-del:hover { color: var(--accent); background: #fde8e5; }
+
+  .ev-body { display: grid; grid-template-columns: 1fr 2fr; }
+  .ev-pane { padding: 12px 14px; }
+  .ev-pane + .ev-pane { border-left: 0.5px solid var(--border); }
+  .pane-label {
+    font-size: 10px; font-weight: 500; color: var(--ink-light);
+    text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px;
+  }
+
+  /* ── Rich editor ── */
+  .rich-editor {
+    min-height: 80px; outline: none;
+    font-family: var(--font-sans); font-size: 13px; line-height: 1.75;
+    color: var(--ink);
+    word-break: break-word;
+  }
+  .rich-editor:empty::before {
+    content: attr(data-placeholder);
+    color: var(--ink-faint); pointer-events: none;
+  }
+  .rich-editor mark.hl-y { background: #ffe066; color: var(--ink); border-radius: 2px; padding: 0 1px; }
+  .rich-editor mark.hl-g { background: #b2f0c8; color: var(--ink); border-radius: 2px; padding: 0 1px; }
+  .rich-editor mark.hl-p { background: #ffc2d4; color: var(--ink); border-radius: 2px; padding: 0 1px; }
+  .rich-editor mark.hl-b { background: #b8d8ff; color: var(--ink); border-radius: 2px; padding: 0 1px; }
+
+  .add-ev-btn {
+    width: 100%; padding: 12px; margin-top: 4px;
+    font-family: var(--font-sans); font-size: 13px; color: var(--ink-mid);
+    background: transparent; border: 1px dashed var(--border); border-radius: 8px;
+    cursor: pointer; transition: all 0.12s;
+  }
+  .add-ev-btn:hover { background: var(--paper-warm); border-style: solid; }
+
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--ink); color: var(--paper);
+    font-size: 13px; padding: 10px 18px; border-radius: var(--radius);
+    opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 999;
+  }
+  .toast.show { opacity: 1; }
+
+  @media print {
+    .app-header, #float-toolbar, .ev-del, .add-ev-btn { display: none !important; }
+    .ev-card { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-title">플롯 구상도</div>
+  <div class="header-actions">
+    <button class="hbtn" onclick="saveData()">💾 저장</button>
+    <button class="hbtn" onclick="exportJSON()">JSON 내보내기</button>
+    <button class="hbtn" onclick="importJSON()">불러오기</button>
+    <button class="hbtn" onclick="window.print()">인쇄</button>
+    <button class="hbtn primary" onclick="exportTXT()">TXT 내보내기</button>
+  </div>
+</header>
+
+<div id="float-toolbar">
+  <button class="toolbar-btn" id="ft-bold"   title="굵게 (Ctrl+B)"  onmousedown="ft('bold')"><span style="font-weight:700">B</span></button>
+  <button class="toolbar-btn" id="ft-italic" title="기울임 (Ctrl+I)" onmousedown="ft('italic')"><span style="font-style:italic">I</span></button>
+  <button class="toolbar-btn" id="ft-strike" title="취소선"           onmousedown="ft('strikeThrough')"><span style="text-decoration:line-through">S</span></button>
+  <div class="toolbar-sep"></div>
+  <button class="toolbar-btn" title="노랑 하이라이트" onmousedown="fhl('hl-y')"><span class="hl-dot hl-yellow"></span></button>
+  <button class="toolbar-btn" title="초록 하이라이트" onmousedown="fhl('hl-g')"><span class="hl-dot hl-green"></span></button>
+  <button class="toolbar-btn" title="분홍 하이라이트" onmousedown="fhl('hl-p')"><span class="hl-dot hl-pink"></span></button>
+  <button class="toolbar-btn" title="파랑 하이라이트" onmousedown="fhl('hl-b')"><span class="hl-dot hl-blue"></span></button>
+  <div class="toolbar-sep"></div>
+  <button class="toolbar-btn" title="서식 지우기" onmousedown="fhl(null)"><span style="font-size:11px;color:rgba(255,255,255,0.6)">✕</span></button>
+</div>
+
+<div class="main">
+  <div class="meta-bar">
+    <div class="meta-field">
+      <div class="meta-label">작품명</div>
+      <input class="meta-in" id="m-title" placeholder="제목" oninput="autosave()" />
+    </div>
+    <div class="meta-field">
+      <div class="meta-label">장르</div>
+      <input class="meta-in" id="m-genre" placeholder="로맨스 / 스릴러…" oninput="autosave()" />
+    </div>
+    <div class="meta-field">
+      <div class="meta-label">작가</div>
+      <input class="meta-in" id="m-author" placeholder="글 작가명" oninput="autosave()" />
+    </div>
+  </div>
+
+  <div class="ev-list" id="ev-list"></div>
+  <button class="add-ev-btn" onclick="addEvent()">+ 사건 추가</button>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<script>
+let evCount = 0;
+let autosaveTimer = null;
+let activeEditor = null;
+
+/* ── Floating toolbar ── */
+const FT = document.getElementById('float-toolbar');
+
+function showFloatToolbar() {
+  const sel = window.getSelection();
+  if (!sel || sel.isCollapsed || !sel.rangeCount) { hideFloatToolbar(); return; }
+  const range = sel.getRangeAt(0);
+  const ancestor = range.commonAncestorContainer;
+  const editor = ancestor.nodeType === 1
+    ? ancestor.closest('.rich-editor')
+    : ancestor.parentElement?.closest('.rich-editor');
+  if (!editor) { hideFloatToolbar(); return; }
+  activeEditor = editor;
+
+  const rect = range.getBoundingClientRect();
+  const scrollY = window.scrollY;
+  const ftW = 220;
+  let left = rect.left + rect.width / 2 - ftW / 2 + window.scrollX;
+  left = Math.max(8, Math.min(left, document.body.clientWidth - ftW - 8));
+  const top = rect.top + scrollY - 44;
+
+  FT.style.left = left + 'px';
+  FT.style.top  = top  + 'px';
+  FT.style.width = ftW + 'px';
+  FT.classList.add('visible');
+}
+
+function hideFloatToolbar() {
+  FT.classList.remove('visible');
+  activeEditor = null;
+}
+
+function ft(cmd) {
+  event.preventDefault();
+  document.execCommand(cmd);
+  autosave();
+  setTimeout(showFloatToolbar, 10);
+}
+
+function fhl(cls) {
+  event.preventDefault();
+  if (!activeEditor) return;
+  const sel = window.getSelection();
+  if (cls === null) {
+    document.execCommand('removeFormat');
+    activeEditor.querySelectorAll('mark').forEach(m => {
+      const p = m.parentNode;
+      while (m.firstChild) p.insertBefore(m.firstChild, m);
+      p.removeChild(m);
+    });
+    hideFloatToolbar();
+    autosave();
+    return;
+  }
+  if (!sel || sel.isCollapsed || !sel.rangeCount) return;
+  const range = sel.getRangeAt(0);
+  const mark = document.createElement('mark');
+  mark.className = cls;
+  try { range.surroundContents(mark); }
+  catch(e) { const f = range.extractContents(); mark.appendChild(f); range.insertNode(mark); }
+  sel.removeAllRanges();
+  hideFloatToolbar();
+  autosave();
+}
+
+document.addEventListener('mouseup', e => {
+  if (FT.contains(e.target)) return;
+  setTimeout(showFloatToolbar, 10);
+});
+
+document.addEventListener('keyup', e => {
+  if (e.shiftKey) setTimeout(showFloatToolbar, 10);
+});
+
+document.addEventListener('mousedown', e => {
+  if (!FT.contains(e.target) && !e.target.closest('.rich-editor')) {
+    hideFloatToolbar();
+  }
+});
+
+document.addEventListener('selectionchange', () => {
+  const sel = window.getSelection();
+  if (sel && sel.isCollapsed) hideFloatToolbar();
+});
+
+/* ── Events ── */
+function addEvent(data) {
+  evCount++;
+  const n = evCount;
+  const memoId  = 'memo-'  + n;
+  const storyId = 'story-' + n;
+
+  const card = document.createElement('div');
+  card.className = 'ev-card';
+  card.id = 'ev-' + n;
+
+  card.innerHTML = `
+    <div class="ev-head">
+      <span class="ev-num">사건 ${n}</span>
+      <input class="ev-title-in" id="title-${n}" placeholder="사건 제목 (예: 첫 만남, 배신, 각성…)" value="${esc(data?.title||'')}" oninput="autosave()" />
+      <button class="ev-del" onclick="deleteEvent(${n})">✕ 삭제</button>
+    </div>
+    <div class="ev-body">
+      <div class="ev-pane" id="memo-pane-${n}">
+        <div class="pane-label">메모</div>
+      </div>
+      <div class="ev-pane" id="story-pane-${n}">
+        <div class="pane-label">줄거리</div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('ev-list').appendChild(card);
+
+  const memoEditor = document.createElement('div');
+  memoEditor.className = 'rich-editor';
+  memoEditor.id = memoId;
+  memoEditor.contentEditable = 'true';
+  memoEditor.setAttribute('data-placeholder', '아이디어, 참고 자료, 연결 사건, 미결 사항 등…');
+  if (data?.memo) memoEditor.innerHTML = data.memo;
+  memoEditor.addEventListener('input', autosave);
+  document.getElementById('memo-pane-'+n).appendChild(memoEditor);
+
+  const storyEditor = document.createElement('div');
+  storyEditor.className = 'rich-editor';
+  storyEditor.id = storyId;
+  storyEditor.contentEditable = 'true';
+  storyEditor.setAttribute('data-placeholder', '이 사건에서 일어나는 일을 자유롭게 서술…');
+  if (data?.story) storyEditor.innerHTML = data.story;
+  storyEditor.addEventListener('input', autosave);
+  document.getElementById('story-pane-'+n).appendChild(storyEditor);
+}
+
+function deleteEvent(n) {
+  if (!confirm('이 사건을 삭제할까요?')) return;
+  const el = document.getElementById('ev-' + n);
+  if (el) el.remove();
+  autosave();
+}
+
+/* ── Save / Load ── */
+function autosave() {
+  clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(saveData, 1200);
+}
+
+function collectState() {
+  const events = [];
+  document.querySelectorAll('.ev-card').forEach(card => {
+    const id = card.id.replace('ev-','');
+    events.push({
+      title: document.getElementById('title-'+id)?.value || '',
+      memo:  document.getElementById('memo-'+id)?.innerHTML || '',
+      story: document.getElementById('story-'+id)?.innerHTML || '',
+    });
+  });
+  return {
+    title:  document.getElementById('m-title').value,
+    genre:  document.getElementById('m-genre').value,
+    author: document.getElementById('m-author').value,
+    events,
+  };
+}
+
+function saveData() {
+  const s = collectState();
+  localStorage.setItem('plot-board-v1', JSON.stringify(s));
+  showToast('자동 저장됨');
+}
+
+function exportJSON() {
+  const s = collectState();
+  download(JSON.stringify(s, null, 2), (s.title||'plot') + '-plot.json', 'application/json');
+  showToast('JSON 내보내기 완료');
+}
+
+function importJSON() { document.getElementById('import-file').click(); }
+
+function handleImport(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const d = JSON.parse(ev.target.result);
+      if (!confirm('현재 작업을 덮어씁니다. 계속할까요?')) return;
+      loadState(d);
+      saveData();
+      showToast('불러오기 완료');
+    } catch { showToast('파일 오류: JSON 형식을 확인하세요'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+function loadState(d) {
+  document.getElementById('m-title').value  = d.title  || '';
+  document.getElementById('m-genre').value  = d.genre  || '';
+  document.getElementById('m-author').value = d.author || '';
+  document.getElementById('ev-list').innerHTML = '';
+  evCount = 0;
+  (d.events || []).forEach(ev => addEvent(ev));
+}
+
+function exportTXT() {
+  const s = collectState();
+  const lines = [];
+  lines.push(`■ ${s.title||'(제목 없음)'}  |  장르: ${s.genre||'-'}  |  글: ${s.author||'-'}`);
+  lines.push('');
+  s.events.forEach((ev, i) => {
+    lines.push(`${'─'.repeat(40)}`);
+    lines.push(`[사건 ${i+1}] ${ev.title||'(제목 없음)'}`);
+    const memo  = stripHTML(ev.memo);
+    const story = stripHTML(ev.story);
+    if (memo)  lines.push(`▷ 메모:\n${memo}`);
+    if (story) lines.push(`▷ 줄거리:\n${story}`);
+    lines.push('');
+  });
+  download(lines.join('\n'), (s.title||'plot') + '-plot.txt', 'text/plain');
+}
+
+/* ── Utils ── */
+function stripHTML(html) {
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html || '';
+  return tmp.textContent || '';
+}
+
+function download(content, filename, mime) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], { type: mime }));
+  a.download = filename; a.click();
+}
+
+function esc(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+/* ── Init ── */
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('plot-board-v1');
+  if (saved) {
+    try { loadState(JSON.parse(saved)); return; } catch(e) {}
+  }
+  addEvent(); addEvent(); addEvent();
+});
+
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveData(); }
+});
+</script>
+</body>
+</html>
